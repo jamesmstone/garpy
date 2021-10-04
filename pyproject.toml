@@ -22,7 +22,7 @@ cloudscraper = "^1.2.58"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.0"
-pytest-cov = "^2.7"
+pytest-cov = "^3.0"
 coveralls = "^3.0"
 
 [build-system]
