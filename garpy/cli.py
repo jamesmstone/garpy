@@ -6,7 +6,8 @@ import pendulum
 from garpy import ActivitiesDownloader, GarminClient, Wellness
 from garpy.settings import config
 
-FORMATS = set(config.get("activities").keys()) | {"fit"} | {"wellness"}
+DEFAULT_FORMATS = set(config.get("activities").keys()) | {"fit"}
+FORMATS = DEFAULT_FORMATS | {"wellness"}
 
 
 @click.group()
@@ -24,7 +25,7 @@ def main():
     help="Which formats to download. The flag can be used several times, e.g. '-f original -f gpx'",
     type=click.Choice(FORMATS),
     show_choices=True,
-    default=FORMATS,
+    default=DEFAULT_FORMATS,
 )
 @click.option(
     "--username",
