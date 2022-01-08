@@ -1,11 +1,12 @@
 from pathlib import Path
 
 import click
+import pendulum
 
-from garpy import ActivitiesDownloader, GarminClient
+from garpy import ActivitiesDownloader, GarminClient, Wellness
 from garpy.settings import config
 
-FORMATS = set(config.get("activities").keys()) | {"fit"}
+FORMATS = set(config.get("activities").keys()) | {"fit"} | {"wellness"}
 
 
 @click.group()
@@ -58,9 +59,17 @@ def main():
     default=config["user-agent"],
     metavar="{user_agent}",
     help="User agent to be used by requests",
-    hide_input=True,
+    hide_input=False,
 )
-def download(backup_dir, formats, username, password, activity_id, user_agent):
+@click.option(
+    "--date",
+    "-d",
+    "date",
+    metavar="{date}",
+    help="Date for wellness requests",
+    hide_input=False,
+)
+def download(backup_dir, formats, username, password, activity_id, user_agent, date):
     """Download activities from Garmin Connect
 
     Entry point for downloading activities from Garmin Connect. By default, it downloads all
@@ -74,6 +83,18 @@ def download(backup_dir, formats, username, password, activity_id, user_agent):
     wish to specify several formats, e.g., 'garpy download [OPTIONS] -f original -f gpx [BACKUP_DIR]' will
     download .fit and .gpx files
     """
+    if "wellness" in formats:
+        formats = set(formats)
+        formats.remove("wellness")
+        formats = tuple(formats)
+        d = pendulum.parse(date)
+        wellness = Wellness(d)
+        with GarminClient(
+            username=username, password=password, user_agent=user_agent
+        ) as client:
+            wellness.download(client, backup_dir)
+            exit()
+
     if "fit" in formats:
         formats = set(formats)
         formats.remove("fit")
